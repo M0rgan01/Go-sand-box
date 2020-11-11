@@ -5,6 +5,9 @@ import (
 	"math"
 )
 
+var Test = "Une variable public"
+var test = "Une variable privée"
+
 func main() {
 
 	// dans une déclaration de var sans type -> le compilateur choisi le stockage (int8, int16..) et le type
