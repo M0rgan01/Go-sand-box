@@ -15,7 +15,7 @@ services:
     restart: always
 
   keycloak:
-    image: jboss/keycloak:12.0.2
+    image: ghcr.io/m0rgan01/keycloak-sand-box:develop
     container_name: go_sand-box_keycloak
     volumes:
       - ./keycloak/imports/:/opt/jboss/keycloak/imports

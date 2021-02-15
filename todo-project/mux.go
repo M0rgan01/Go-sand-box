@@ -9,10 +9,17 @@ import (
 
 var todos []Todo
 
+const port = 8080
+
 func main() {
+
+	// init public key for security
+	fetchPublicKey()
+
 	// init router
 	r := mux.NewRouter()
 
+	// init security handling
 	r.Use(HandleAuth)
 
 	// Mock data
@@ -29,12 +36,12 @@ func main() {
 	})
 
 	// Route Handlers / Endpoints
-	r.HandleFunc("/todoAPI/todos", getTodos).Methods("GET")
-	r.HandleFunc("/todoAPI/books/{id}", getTodo).Methods("GET")
-	r.HandleFunc("/todoAPI/book", createTodo).Methods("POST")
-	r.HandleFunc("/todoAPI/book/{id}", updateTodo).Methods("PUT")
-	r.HandleFunc("/todoAPI/book/{id}", deleteTodo).Methods("DELETE")
+	r.HandleFunc("/todoAPI/todos", getTodos).Methods("GET").Name(adminRole)
+	r.HandleFunc("/todoAPI/books/{id}", getTodo).Methods("GET").Name(adminRole)
+	r.HandleFunc("/todoAPI/book", createTodo).Methods("POST").Name(adminRole)
+	r.HandleFunc("/todoAPI/book/{id}", updateTodo).Methods("PUT").Name(adminRole)
+	r.HandleFunc("/todoAPI/book/{id}", deleteTodo).Methods("DELETE").Name(adminRole)
 
-	fmt.Println("Server starting...")
-	log.Fatal(http.ListenAndServe(":8080", corsHandler(r)))
+	log.Printf("todo-project running at 'http://localhost:%d'", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), CorsHandler(r)))
 }
