@@ -1,4 +1,4 @@
-module github.com/todo-project
+module github.com/morgan/Go-sand-box/todo-project
 
 go 1.15
 
