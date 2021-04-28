@@ -12,9 +12,12 @@ var todos []Todo
 const port = 8080
 
 func main() {
-
+	setFlags()
+	setKeycloakInfosByEnv()
 	// init public key for security
 	fetchPublicKey()
+	// create keycloak fixtures
+	createKeycloakFixtures()
 
 	// init router
 	r := mux.NewRouter()

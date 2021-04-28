@@ -4,30 +4,15 @@ import (
 	"context"
 	"github.com/Nerzal/gocloak/v8"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/mux"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
 const (
-	adminRole = "admin"
 	userRole  = "user"
+	adminRole = "admin"
 )
-
-type KeycloakInfo struct {
-	BaseURL      string
-	ClientID     string
-	ClientSecret string
-	Realm        string
-}
-
-var keycloakInfo = KeycloakInfo{
-	BaseURL:      "http://localhost",
-	ClientID:     "TodoAPI",
-	Realm:        "TodoRealm",
-	ClientSecret: "41009360-201d-4747-aa96-0a5b71f17262",
-}
 
 var publicKey string
 
@@ -48,20 +33,13 @@ func fetchPublicKey() {
 func HandleAuth(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		role := mux.CurrentRoute(r).GetName()
+		accessToken := getAccessToken(r)
+		claims, valid := extractClaims(accessToken)
 
-		if role != "" {
-
-			accessToken := getAccessToken(r)
-			claims, valid := extractClaims(accessToken)
-
-			if !valid {
-				w.WriteHeader(http.StatusUnauthorized)
-			} else if !isClaimsContainRole(claims, role) {
-				w.WriteHeader(http.StatusForbidden)
-			} else {
-				h.ServeHTTP(w, r)
-			}
+		if !valid {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else if !isClaimsContainRole(claims, userRole) {
+			w.WriteHeader(http.StatusForbidden)
 		} else {
 			h.ServeHTTP(w, r)
 		}
