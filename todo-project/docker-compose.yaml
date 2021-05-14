@@ -17,8 +17,6 @@ services:
   keycloak:
     image: ghcr.io/m0rgan01/keycloak-sand-box:develop
     container_name: go_sand-box_keycloak
-    volumes:
-      - ./keycloak/imports/:/opt/jboss/keycloak/imports
     expose:
       - 8080
     environment:
@@ -31,8 +29,6 @@ services:
       KEYCLOAK_PASSWORD: admin
       KEYCLOAK_LOGLEVEL: INFO
       ROOT_LOGLEVEL: INFO
-      KEYCLOAK_IMPORT: opt/jboss/keycloak/imports/realm-export.json
-    command: -Dkeycloak.profile.feature.upload_scripts=enabled
     labels:
       - traefik.enable=true
       - traefik.http.routers.keycloak.rule=Host(`localhost`)
