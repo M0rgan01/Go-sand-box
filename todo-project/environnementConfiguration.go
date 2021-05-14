@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	log "github.com/sirupsen/logrus"
+	"log"
 )
 
 var envKey = devEnv

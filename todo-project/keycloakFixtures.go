@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/Nerzal/gocloak/v8"
-	log "github.com/sirupsen/logrus"
+	"log"
 	"strings"
 )
 

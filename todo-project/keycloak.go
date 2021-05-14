@@ -4,9 +4,10 @@ import (
 	"context"
 	"github.com/Nerzal/gocloak/v8"
 	"github.com/dgrijalva/jwt-go"
-	log "github.com/sirupsen/logrus"
+	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 )
 
 var publicKey string
+var retryFetchPublicKey = 1
 
 func fetchPublicKey() {
 	log.Println("Fetching public key...")
@@ -23,7 +25,16 @@ func fetchPublicKey() {
 	issuerInfo, err := client.GetIssuer(ctx, keycloakInfo.Realm)
 
 	if err != nil {
-		log.Fatal("Error when fetching public key :", err)
+
+		log.Printf("Error when fetching public key : %s", err)
+		if retryFetchPublicKey < 4 {
+			log.Printf("--- Retry in %d sec ---", retryFetchPublicKey)
+			time.Sleep(time.Duration(retryFetchPublicKey) * time.Second)
+			retryFetchPublicKey++
+			fetchPublicKey()
+		} else {
+			log.Fatal("Please check availability of keycloak")
+		}
 	}
 
 	publicKey = *issuerInfo.PublicKey
