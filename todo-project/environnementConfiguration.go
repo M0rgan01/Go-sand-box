@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/gin-gonic/gin"
 	"log"
 )
 
@@ -90,8 +91,23 @@ var keycloakInfo KeycloakInfo
 var keycloakAdminInfo KeycloakAdminInfo
 var keycloakSMTPInfo KeycloakSMTPInfo
 
-func setKeycloakInfosByEnv() {
+func setupConfiguration() {
+	envKey = *flag.String("env", envKey, "environment")
+	flag.Parse()
+
 	log.Print("Actual env : " + envKey)
+
+	setKeycloakInfosByEnv()
+	setGinMode()
+}
+
+func setGinMode() {
+	if envKey == prodEnv {
+		gin.SetMode(gin.ReleaseMode)
+	}
+}
+
+func setKeycloakInfosByEnv() {
 	switch envKey {
 	case prodEnv:
 		keycloakInfo = KeycloakProdInfo
@@ -105,9 +121,4 @@ func setKeycloakInfosByEnv() {
 		keycloakInfo = KeycloakDevInfo
 		keycloakAdminInfo = keycloakDevAdminInfo
 	}
-}
-
-func setFlags() {
-	envKey = *flag.String("env", envKey, "environment")
-	flag.Parse()
 }

@@ -1,18 +1,22 @@
 package main
 
-import "net/http"
+import (
+	"github.com/gin-gonic/gin"
+)
 
-func CorsHandler(h http.Handler) http.HandlerFunc {
-
-	return func(w http.ResponseWriter, r *http.Request) {
+func CorsHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		allowedHeaders := "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, X-CSRF-Token, x-realm"
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", allowedHeaders)
-		w.Header().Set("Access-Control-Expose-Headers", "Authorization")
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", allowedHeaders)
+		c.Header("Access-Control-Expose-Headers", "Authorization")
 
-		if r.Method != "OPTIONS" {
-			h.ServeHTTP(w, r)
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(200)
+			return
 		}
+
+		c.Next()
 	}
 }

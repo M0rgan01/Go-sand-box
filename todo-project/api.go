@@ -1,18 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
-	"log"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func getTodos(w http.ResponseWriter, r *http.Request) {
-	writeJSON(todos, w, 201)
+func getTodos(c *gin.Context) {
+	c.JSON(http.StatusOK, todos)
 }
 
-func getTodo(w http.ResponseWriter, r *http.Request) {
+/*func getTodo(c *gin.Context) {
 	w.Header().Set("content-type", "application/json")
 	params := mux.Vars(r) // get params
 
@@ -33,7 +30,7 @@ func getTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&Todo{})
 }
 
-func createTodo(w http.ResponseWriter, r *http.Request) {
+func createTodo(c *gin.Context) {
 	w.Header().Set("Content-Type", "application/json")
 	var book Todo
 	_ = json.NewDecoder(r.Body).Decode(&book)
@@ -42,7 +39,7 @@ func createTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(book)
 }
 
-func updateTodo(w http.ResponseWriter, r *http.Request) {
+func updateTodo(c *gin.Context) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	for index, item := range todos {
@@ -67,7 +64,7 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteTodo(w http.ResponseWriter, r *http.Request) {
+func deleteTodo(c *gin.Context) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 
@@ -87,17 +84,4 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	json.NewEncoder(w).Encode(todos)
-}
-
-// writeJSON marshals data into JSON then outputs it on the response writer
-// with appropriate status code.
-func writeJSON(data interface{}, w http.ResponseWriter, statusCode int) {
-	err := json.NewEncoder(w).Encode(data)
-	if err != nil {
-		log.Println("err :", err, "data :", data)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json; encoding=\"utf-8\"")
-	w.WriteHeader(statusCode)
-}
+}*/

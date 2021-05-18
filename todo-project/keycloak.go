@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Nerzal/gocloak/v8"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
@@ -33,28 +34,32 @@ func fetchPublicKey() {
 			retryFetchPublicKey++
 			fetchPublicKey()
 		} else {
-			log.Fatal("Please check availability of keycloak")
+			log.Fatal("Please check availability of keycloak service")
 		}
+	} else {
+		publicKey = *issuerInfo.PublicKey
+		log.Println("Fetching public key done !")
 	}
-
-	publicKey = *issuerInfo.PublicKey
-	log.Println("Fetching public key done !")
 }
 
-func HandleAuth(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func respondWithError(c *gin.Context, code int, message interface{}) {
+	c.AbortWithStatusJSON(code, gin.H{"error": message})
+}
 
-		accessToken := getAccessToken(r)
+func TokenAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		accessToken := getAccessToken(c.Request)
 		claims, valid := extractClaims(accessToken)
 
 		if !valid {
-			w.WriteHeader(http.StatusUnauthorized)
+			respondWithError(c, http.StatusUnauthorized, "Token not valid")
 		} else if !isClaimsContainRole(claims, userRole) {
-			w.WriteHeader(http.StatusForbidden)
-		} else {
-			h.ServeHTTP(w, r)
+			respondWithError(c, http.StatusForbidden, "Forbidden")
 		}
-	})
+
+		c.Next()
+	}
 }
 
 func isClaimsContainRole(claims jwt.MapClaims, role string) bool {
