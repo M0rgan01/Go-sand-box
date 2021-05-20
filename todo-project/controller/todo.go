@@ -1,12 +1,34 @@
-package main
+package controller
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/morgan/Go-sand-box/todo-project/model"
+	"github.com/morgan/Go-sand-box/todo-project/repository"
 	"net/http"
 )
 
-func getTodos(c *gin.Context) {
+func GetTodos(c *gin.Context) {
+
+	todos, err := repository.GetTodoList()
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
 	c.JSON(http.StatusOK, todos)
+}
+
+func CreateTodo(c *gin.Context) {
+	var todo model.Todo
+	_ = json.NewDecoder(c.Request.Body).Decode(&todo)
+
+	insertTodo, err := repository.InsertTodo(todo)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusCreated, insertTodo)
 }
 
 /*func getTodo(c *gin.Context) {

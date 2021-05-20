@@ -1,22 +1,23 @@
-package main
+package keycloak
 
 import (
 	"context"
 	"github.com/Nerzal/gocloak/v8"
+	"github.com/morgan/Go-sand-box/todo-project/configuration"
 	"log"
 	"strings"
 )
 
-func createKeycloakFixtures() {
+func CreateKeycloakFixtures() {
 	updateAdminUser()
 	createTodoRealm()
 	createDevBaseUser()
 }
 
 func createDevBaseUser() {
-	if envKey == devEnv {
+	if configuration.EnvKey == configuration.DevEnv {
 		client, ctx, accessToken := getClient()
-		count, err := client.GetUserCount(ctx, accessToken, keycloakInfo.Realm, gocloak.GetUsersParams{})
+		count, err := client.GetUserCount(ctx, accessToken, configuration.BaseKeycloakInfo.Realm, gocloak.GetUsersParams{})
 		if err != nil {
 			panic("Something wrong when fetching user count : " + err.Error())
 		} else if count == 0 {
@@ -40,7 +41,7 @@ func createDevBaseUser() {
 				Enabled:     gocloak.BoolP(true),
 				Credentials: &[]gocloak.CredentialRepresentation{credential},
 			}
-			_, err = client.CreateUser(ctx, accessToken, keycloakInfo.Realm, user)
+			_, err = client.CreateUser(ctx, accessToken, configuration.BaseKeycloakInfo.Realm, user)
 
 			if err != nil {
 				panic("Something wrong when create user : " + err.Error())
@@ -52,9 +53,9 @@ func createDevBaseUser() {
 }
 
 func getClient() (gocloak.GoCloak, context.Context, string) {
-	client := gocloak.NewClient(keycloakInfo.BaseURL)
+	client := gocloak.NewClient(configuration.BaseKeycloakInfo.BaseURL)
 	ctx := context.Background()
-	token, err := client.LoginAdmin(ctx, keycloakAdminInfo.username, keycloakAdminInfo.password, keycloakAdminInfo.baseRealm)
+	token, err := client.LoginAdmin(ctx, configuration.BaseKeycloakAdminInfo.Username, configuration.BaseKeycloakAdminInfo.Password, configuration.BaseKeycloakAdminInfo.BaseRealm)
 	if err != nil {
 		panic("Something wrong with the credentials or url : " + err.Error())
 	}
@@ -81,7 +82,7 @@ func updateAdminUser() {
 			Username:  adminUser.Username,
 			FirstName: gocloak.StringP("keycloakAdmin"),
 			LastName:  gocloak.StringP("keycloakAdmin"),
-			Email:     gocloak.StringP(keycloakSMTPInfo.from),
+			Email:     gocloak.StringP(configuration.BaseKeycloakSMTPInfo.From),
 		}
 
 		err = client.UpdateUser(ctx, accessToken, "master", user)
@@ -96,7 +97,7 @@ func updateAdminUser() {
 
 func createTodoRealm() {
 	client, ctx, accessToken := getClient()
-	_, err := client.GetRealm(ctx, accessToken, keycloakInfo.Realm)
+	_, err := client.GetRealm(ctx, accessToken, configuration.BaseKeycloakInfo.Realm)
 
 	if err != nil {
 		if !strings.Contains(err.Error(), "404") {
@@ -109,18 +110,18 @@ func createTodoRealm() {
 			smtServer := buildSMTPServer()
 
 			todoRealm := gocloak.RealmRepresentation{
-				ID:                  gocloak.StringP(keycloakInfo.Realm),
-				Realm:               gocloak.StringP(keycloakInfo.Realm),
+				ID:                  gocloak.StringP(configuration.BaseKeycloakInfo.Realm),
+				Realm:               gocloak.StringP(configuration.BaseKeycloakInfo.Realm),
 				Enabled:             gocloak.BoolP(true),
 				RegistrationAllowed: gocloak.BoolP(true),
 				DefaultLocale:       gocloak.StringP("en"),
-				EmailTheme:          gocloak.StringP(keycloakInfo.baseTheme),
-				AdminTheme:          gocloak.StringP(keycloakInfo.baseTheme),
-				LoginTheme:          gocloak.StringP(keycloakInfo.loginTheme),
+				EmailTheme:          gocloak.StringP(configuration.BaseKeycloakInfo.BaseTheme),
+				AdminTheme:          gocloak.StringP(configuration.BaseKeycloakInfo.BaseTheme),
+				LoginTheme:          gocloak.StringP(configuration.BaseKeycloakInfo.LoginTheme),
 				Roles:               &roles,
 				DefaultRoles:        &[]string{userRole},
 				Clients:             &[]gocloak.Client{uiClient},
-				PasswordPolicy:      gocloak.StringP(keycloakInfo.passwordPolicy),
+				PasswordPolicy:      gocloak.StringP(configuration.BaseKeycloakInfo.PasswordPolicy),
 				SMTPServer:          &smtServer,
 			}
 
@@ -147,26 +148,26 @@ func buildRoles(roles []string) gocloak.RolesRepresentation {
 
 func buildUiClient() gocloak.Client {
 	return gocloak.Client{
-		Name:         gocloak.StringP(keycloakAdminInfo.uiClient),
-		ID:           gocloak.StringP(keycloakAdminInfo.uiClient),
-		BaseURL:      gocloak.StringP(keycloakAdminInfo.uiClientUrl),
+		Name:         gocloak.StringP(configuration.BaseKeycloakAdminInfo.UiClient),
+		ID:           gocloak.StringP(configuration.BaseKeycloakAdminInfo.UiClient),
+		BaseURL:      gocloak.StringP(configuration.BaseKeycloakAdminInfo.UiClientUrl),
 		Enabled:      gocloak.BoolP(true),
 		PublicClient: gocloak.BoolP(true),
-		RedirectURIs: &[]string{keycloakAdminInfo.uiClientUrl + "/*"},
-		WebOrigins:   &[]string{keycloakAdminInfo.uiClientUrl},
+		RedirectURIs: &[]string{configuration.BaseKeycloakAdminInfo.UiClientUrl + "/*"},
+		WebOrigins:   &[]string{configuration.BaseKeycloakAdminInfo.UiClientUrl},
 	}
 }
 
 func buildSMTPServer() map[string]string {
 	return map[string]string{
-		"auth":            keycloakSMTPInfo.auth,
-		"host":            keycloakSMTPInfo.host,
-		"port":            keycloakSMTPInfo.port,
-		"user":            keycloakSMTPInfo.user,
-		"password":        keycloakSMTPInfo.password,
-		"from":            keycloakSMTPInfo.from,
-		"fromDisplayName": keycloakSMTPInfo.fromDisplayName,
-		"ssl":             keycloakSMTPInfo.ssl,
-		"starttls":        keycloakSMTPInfo.starttls,
+		"auth":            configuration.BaseKeycloakSMTPInfo.Auth,
+		"host":            configuration.BaseKeycloakSMTPInfo.Host,
+		"port":            configuration.BaseKeycloakSMTPInfo.Port,
+		"user":            configuration.BaseKeycloakSMTPInfo.User,
+		"password":        configuration.BaseKeycloakSMTPInfo.Password,
+		"from":            configuration.BaseKeycloakSMTPInfo.From,
+		"fromDisplayName": configuration.BaseKeycloakSMTPInfo.FromDisplayName,
+		"ssl":             configuration.BaseKeycloakSMTPInfo.Ssl,
+		"starttls":        configuration.BaseKeycloakSMTPInfo.Starttls,
 	}
 }

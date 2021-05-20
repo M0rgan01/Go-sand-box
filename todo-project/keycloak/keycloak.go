@@ -1,10 +1,11 @@
-package main
+package keycloak
 
 import (
 	"context"
 	"github.com/Nerzal/gocloak/v8"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/morgan/Go-sand-box/todo-project/configuration"
 	"log"
 	"net/http"
 	"strings"
@@ -19,11 +20,11 @@ const (
 var publicKey string
 var retryFetchPublicKey = 1
 
-func fetchPublicKey() {
+func FetchPublicKey() {
 	log.Println("Fetching public key...")
-	client := gocloak.NewClient(keycloakInfo.BaseURL)
+	client := gocloak.NewClient(configuration.BaseKeycloakInfo.BaseURL)
 	ctx := context.Background()
-	issuerInfo, err := client.GetIssuer(ctx, keycloakInfo.Realm)
+	issuerInfo, err := client.GetIssuer(ctx, configuration.BaseKeycloakInfo.Realm)
 
 	if err != nil {
 
@@ -32,7 +33,7 @@ func fetchPublicKey() {
 			log.Printf("--- Retry in %d sec ---", retryFetchPublicKey)
 			time.Sleep(time.Duration(retryFetchPublicKey) * time.Second)
 			retryFetchPublicKey++
-			fetchPublicKey()
+			FetchPublicKey()
 		} else {
 			log.Fatal("Please check availability of keycloak service")
 		}

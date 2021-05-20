@@ -2,20 +2,24 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/morgan/Go-sand-box/todo-project/configuration"
+	"github.com/morgan/Go-sand-box/todo-project/controller"
+	"github.com/morgan/Go-sand-box/todo-project/fixtures"
+	"github.com/morgan/Go-sand-box/todo-project/keycloak"
 	"log"
 	"strconv"
 )
 
-var todos []Todo
-
 const port = 8080
 
 func main() {
-	setupConfiguration()
+	configuration.SetupConfiguration()
 	// init public key for security
-	fetchPublicKey()
+	keycloak.FetchPublicKey()
 	// create keycloak fixtures
-	createKeycloakFixtures()
+	keycloak.CreateKeycloakFixtures()
+	// create database fixtures
+	fixtures.InitDatabaseSeed()
 
 	// Creates a router without any middleware by default
 	r := gin.New()
@@ -32,25 +36,13 @@ func main() {
 	r.Use(gin.Recovery())
 
 	// init security handling
-	r.Use(TokenAuthMiddleware())
-
-	// Mock data
-	todos = append(todos, Todo{
-		Id:       createUuid(),
-		Title:    "Harry potter",
-		Complete: false,
-	})
-
-	todos = append(todos, Todo{
-		Id:       createUuid(),
-		Title:    "Harry potter 2",
-		Complete: false,
-	})
+	r.Use(keycloak.TokenAuthMiddleware())
 
 	// Route Handlers / Endpoints
-	r.GET("/todoAPI/todos", getTodos)
+	r.GET("/todoAPI/todos", controller.GetTodos)
+	r.POST("/todoAPI/todo", controller.CreateTodo)
 	/*r.GET("/todoAPI/books/{id}", getTodo)
-	r.POST("/todoAPI/book", createTodo)
+
 	r.PUT("/todoAPI/book/{id}", updateTodo)
 	r.DELETE("/todoAPI/book/{id}", deleteTodo)*/
 
