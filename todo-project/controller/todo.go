@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/morgan/Go-sand-box/todo-project/model"
 	"github.com/morgan/Go-sand-box/todo-project/repository"
 	"net/http"
@@ -19,91 +20,51 @@ func GetTodos(c *gin.Context) {
 	c.JSON(http.StatusOK, todos)
 }
 
-func CreateTodo(c *gin.Context) {
-	var todo model.Todo
-	_ = json.NewDecoder(c.Request.Body).Decode(&todo)
+func GetTodoById(c *gin.Context) {
+	todoId, err := getTodoId(c)
 
-	insertTodo, err := repository.InsertTodo(todo)
+	todo, err := repository.GetTodoById(todoId)
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	c.JSON(http.StatusCreated, insertTodo)
+	c.JSON(http.StatusOK, todo)
 }
 
-/*func getTodo(c *gin.Context) {
-	w.Header().Set("content-type", "application/json")
-	params := mux.Vars(r) // get params
+func SaveTodo(c *gin.Context) {
+	var todo model.Todo
+	_ = json.NewDecoder(c.Request.Body).Decode(&todo)
 
-	var uuidFromString, err = uuid.Parse(params["id"])
+	isCreated, err := repository.SaveTodo(todo)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	if isCreated {
+		c.Status(http.StatusCreated)
+	} else {
+		c.Status(http.StatusOK)
+	}
+}
+
+func DeleteTodo(c *gin.Context) {
+	todoId, err := getTodoId(c)
+
+	err = repository.DeleteTodo(todoId)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	for _, item := range todos {
-		if item.Id == uuidFromString {
-			json.NewEncoder(w).Encode(item)
-			return
-		}
-	}
-	json.NewEncoder(w).Encode(&Todo{})
+	c.Status(http.StatusOK)
 }
 
-func createTodo(c *gin.Context) {
-	w.Header().Set("Content-Type", "application/json")
-	var book Todo
-	_ = json.NewDecoder(r.Body).Decode(&book)
-	book.Id = createUuid() // Mock Id - not safe
-	todos = append(todos, book)
-	json.NewEncoder(w).Encode(book)
-}
-
-func updateTodo(c *gin.Context) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	for index, item := range todos {
-
-		var uuidFromString, err = uuid.Parse(params["id"])
-
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		if item.Id == uuidFromString {
-			todos = append(todos[:index], todos[index+1:]...)
-			var book Todo
-			_ = json.NewDecoder(r.Body).Decode(&book)
-			book.Id = uuidFromString
-			todos = append(todos, book)
-			json.NewEncoder(w).Encode(book)
-			return
-		}
-	}
-}
-
-func deleteTodo(c *gin.Context) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-
-	var uuidFromString, err = uuid.Parse(params["id"])
+func getTodoId(c *gin.Context) (uuid.UUID, error) {
+	id := c.Param("id")
+	todoId, err := uuid.Parse(id)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-
-	for index, item := range todos {
-
-		if item.Id == uuidFromString {
-			todos = append(todos[:index], todos[index+1:]...)
-			break
-		}
-	}
-	json.NewEncoder(w).Encode(todos)
-}*/
+	return todoId, err
+}

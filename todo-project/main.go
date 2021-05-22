@@ -5,7 +5,7 @@ import (
 	"github.com/morgan/Go-sand-box/todo-project/configuration"
 	"github.com/morgan/Go-sand-box/todo-project/controller"
 	"github.com/morgan/Go-sand-box/todo-project/fixtures"
-	"github.com/morgan/Go-sand-box/todo-project/keycloak"
+	"github.com/morgan/Go-sand-box/todo-project/security"
 	"log"
 	"strconv"
 )
@@ -15,9 +15,9 @@ const port = 8080
 func main() {
 	configuration.SetupConfiguration()
 	// init public key for security
-	keycloak.FetchPublicKey()
+	security.FetchPublicKey()
 	// create keycloak fixtures
-	keycloak.CreateKeycloakFixtures()
+	security.CreateKeycloakFixtures()
 	// create database fixtures
 	fixtures.InitDatabaseSeed()
 
@@ -25,7 +25,7 @@ func main() {
 	r := gin.New()
 
 	// CORS handling
-	r.Use(CorsHandler())
+	r.Use(security.CorsHandler())
 
 	// Global middleware
 	// Logger middleware will write the logs to gin.DefaultWriter even if you set with GIN_MODE=release.
@@ -36,15 +36,13 @@ func main() {
 	r.Use(gin.Recovery())
 
 	// init security handling
-	r.Use(keycloak.TokenAuthMiddleware())
+	r.Use(security.TokenAuthMiddleware())
 
 	// Route Handlers / Endpoints
 	r.GET("/todoAPI/todos", controller.GetTodos)
-	r.POST("/todoAPI/todo", controller.CreateTodo)
-	/*r.GET("/todoAPI/books/{id}", getTodo)
-
-	r.PUT("/todoAPI/book/{id}", updateTodo)
-	r.DELETE("/todoAPI/book/{id}", deleteTodo)*/
+	r.POST("/todoAPI/todo", controller.SaveTodo)
+	r.GET("/todoAPI/todo/:id", controller.GetTodoById)
+	r.DELETE("/todoAPI/todo/:id", controller.DeleteTodo)
 
 	log.Printf("todo-project running at 'http://localhost:%d'", port)
 	err := r.Run(":" + strconv.Itoa(port))

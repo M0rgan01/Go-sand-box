@@ -4,6 +4,7 @@ import (
 	"github.com/morgan/Go-sand-box/todo-project/database"
 	"github.com/morgan/Go-sand-box/todo-project/model"
 	"github.com/morgan/Go-sand-box/todo-project/repository"
+	"github.com/morgan/Go-sand-box/todo-project/utils"
 	"log"
 )
 
@@ -46,7 +47,8 @@ func initTodoSeed() {
 		panic(err)
 	} else if todoCount == 0 {
 
-		_, err := repository.InsertTodo(model.Todo{
+		_, err := repository.SaveTodo(model.Todo{
+			Id:       utils.CreateUuid(),
 			Title:    "Harry potter",
 			Complete: false,
 		})
@@ -55,7 +57,8 @@ func initTodoSeed() {
 			panic(err)
 		}
 
-		_, err = repository.InsertTodo(model.Todo{
+		_, err = repository.SaveTodo(model.Todo{
+			Id:       utils.CreateUuid(),
 			Title:    "Star wars",
 			Complete: true,
 		})

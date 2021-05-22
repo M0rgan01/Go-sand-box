@@ -1,14 +1,14 @@
-package main
+package utils
 
 import (
-	"fmt"
 	"github.com/google/uuid"
+	"log"
 )
 
-func createUuid() uuid.UUID {
+func CreateUuid() uuid.UUID {
 	var random, err = uuid.NewRandom()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 	return random
 }

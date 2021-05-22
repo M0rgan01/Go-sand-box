@@ -1,4 +1,4 @@
-package keycloak
+package security
 
 import (
 	"context"
