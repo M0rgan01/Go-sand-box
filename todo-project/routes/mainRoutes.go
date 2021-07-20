@@ -21,11 +21,12 @@ func SetupRoutes() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	// init security handling
-	r.Use(security.TokenAuthMiddleware())
+	// r.Use(security.TokenAuthMiddleware())
 
 	apiGroup := r.Group("/todoAPI")
-
+	wsGroup := r.Group("/wsAPI")
 	SetupTodoRoutes(apiGroup)
+	SetupWebsocketRoutes(wsGroup)
 
 	return r
 }

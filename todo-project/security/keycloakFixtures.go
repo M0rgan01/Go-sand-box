@@ -22,7 +22,7 @@ func createDevBaseUser() {
 			panic("Something wrong when fetching user count : " + err.Error())
 		} else if count == 0 {
 			log.Println("Create dev user...")
-
+			// password: admin
 			credential := gocloak.CredentialRepresentation{
 				Temporary: gocloak.BoolP(false),
 				Type:      gocloak.StringP("password"),
