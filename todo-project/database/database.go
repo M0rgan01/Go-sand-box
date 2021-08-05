@@ -5,34 +5,18 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/morgan/Go-sand-box/todo-project/configuration"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 )
 
-const (
-	dbHost     = "localhost"
-	dbPort     = 5433
-	dbUser     = "admin"
-	dbPassword = "password"
-	dbname     = "app_database"
-)
-
 var db *gorm.DB
 
-func GetGormInstance() (*gorm.DB, error) {
+func GetGormInstance(dsn string) (*gorm.DB, error) {
 	if db != nil {
 		return db, nil
 	}
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d %s",
-		dbHost,
-		dbUser,
-		dbPassword,
-		dbname,
-		dbPort,
-		"sslmode=disable",
-	)
 
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -52,7 +36,7 @@ func GetGormDBConnection() (*sql.DB, error) {
 func OpenDB() (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbname)
+		configuration.DBHost, configuration.DBPort, configuration.DBUser, configuration.DBPassword, configuration.DBName)
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {

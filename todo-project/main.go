@@ -18,7 +18,7 @@ func main() {
 	// create keycloak fixtures
 	security.CreateKeycloakFixtures()
 
-	gorm, err := database.GetGormInstance()
+	gorm, err := database.GetGormInstance(configuration.GetDataBaseDSN())
 	if err != nil {
 		log.Fatalf("Failed to init gorm connection : %s", err.Error())
 	}
@@ -28,7 +28,7 @@ func main() {
 		log.Fatalf("Failed to get gorm DB instance : %s", err.Error())
 	}
 
-	err = database.Migrate(dbInstance)
+	err = database.Migrate(dbInstance, configuration.MigrationsDirectory)
 	if err != nil {
 		log.Fatalf("Failed to migrate database : %s", err.Error())
 	}

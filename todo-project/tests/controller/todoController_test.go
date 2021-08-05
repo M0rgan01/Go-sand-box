@@ -3,6 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"github.com/google/uuid"
+	"github.com/morgan/Go-sand-box/todo-project/configuration"
+	"github.com/morgan/Go-sand-box/todo-project/database"
 	"github.com/morgan/Go-sand-box/todo-project/model"
 	"github.com/morgan/Go-sand-box/todo-project/routes"
 	"github.com/morgan/Go-sand-box/todo-project/utils"
@@ -23,8 +25,8 @@ func structToString(a interface{}) string {
 }
 
 func uuidFromString(s string) uuid.UUID {
-	uuid, _ := uuid.Parse(s)
-	return uuid
+	Uuid, _ := uuid.Parse(s)
+	return Uuid
 }
 
 var todos = []model.Todo{
@@ -41,11 +43,37 @@ var todos = []model.Todo{
 }
 
 func TestCatalogController(t *testing.T) {
+
+	migrationDir := "../../migrations"
+
+	db, err := database.GetGormInstance(configuration.GetDataBaseDSN())
+
+	if err != nil {
+		t.FailNow()
+	}
+
+	dbConnection, err := db.DB()
+	if err != nil {
+		t.FailNow()
+	}
+
+	err = database.Migrate(dbConnection, migrationDir)
+	if err != nil {
+		t.FailNow()
+	}
+
 	t.Run("Get todo list", GetTodoListTest)
 	t.Run("Get todo by ID", GetTodoByIdTest)
 	t.Run("Add todo", AddTodoTest)
 	t.Run("Update todo", UpdateTodoTest)
 	t.Run("Delete todo", DeleteTodoTest)
+
+	_, migrationInstance, err := database.GetDBMigrationInstance(dbConnection, migrationDir)
+
+	err = migrationInstance.Drop()
+	if err != nil {
+		t.FailNow()
+	}
 }
 
 func GetTodoListTest(t *testing.T) {
