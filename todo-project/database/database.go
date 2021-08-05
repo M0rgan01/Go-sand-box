@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 )
 
 const (
@@ -17,23 +18,12 @@ const (
 	dbname     = "app_database"
 )
 
-func OpenDB() (*sql.DB, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbname)
-
-	db, err := sql.Open("postgres", psqlInfo)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
-}
-
 var db *gorm.DB
 
-func GetConnection() (*gorm.DB, error) {
+func GetGormInstance() (*gorm.DB, error) {
+	if db != nil {
+		return db, nil
+	}
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d %s",
 		dbHost,
@@ -45,11 +35,29 @@ func GetConnection() (*gorm.DB, error) {
 	)
 
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
 	if err != nil {
 		return nil, errors.New("failed to connect to database")
 	}
+
 	db = database
+	log.Println("Gorm instance initializing")
+	return db, nil
+}
+
+func GetGormDBConnection() (*sql.DB, error) {
+	return db.DB()
+}
+
+// Without GORM
+func OpenDB() (*sql.DB, error) {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }

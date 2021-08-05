@@ -8,7 +8,7 @@ import (
 )
 
 func GetTodoList() ([]model.Todo, error) {
-	db, err := database.OpenDB()
+	db, err := database.GetGormDBConnection()
 	defer db.Close()
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func GetTodoList() ([]model.Todo, error) {
 }
 
 func GetTodoById(id uuid.UUID) (model.Todo, error) {
-	db, err := database.OpenDB()
+	db, err := database.GetGormDBConnection()
 	defer db.Close()
 	if err != nil {
 		return model.Todo{}, err
@@ -72,7 +72,7 @@ func buildTodo(selDB *sql.Rows, todo *model.Todo) error {
 }
 
 func GetTodosCount() (int, error) {
-	db, err := database.OpenDB()
+	db, err := database.GetGormDBConnection()
 	defer db.Close()
 
 	if err != nil {
@@ -123,7 +123,7 @@ func SaveTodo(todo model.Todo) (bool, error) {
 
 func insertTodo(todo model.Todo) error {
 
-	db, err := database.OpenDB()
+	db, err := database.GetGormDBConnection()
 	defer db.Close()
 
 	if err != nil {
@@ -146,7 +146,7 @@ func insertTodo(todo model.Todo) error {
 }
 
 func updateTodo(todo model.Todo) error {
-	db, err := database.OpenDB()
+	db, err := database.GetGormDBConnection()
 	defer db.Close()
 
 	if err != nil {
@@ -169,7 +169,7 @@ func updateTodo(todo model.Todo) error {
 }
 
 func DeleteTodo(id uuid.UUID) error {
-	db, err := database.OpenDB()
+	db, err := database.GetGormDBConnection()
 	defer db.Close()
 
 	if err != nil {
