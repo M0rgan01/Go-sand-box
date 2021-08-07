@@ -13,7 +13,7 @@ func GetTodoList() ([]model.Todo, error) {
 		return nil, err
 	}
 
-	selDB, err := db.Query("SELECT * FROM Todo ORDER BY id DESC")
+	selDB, err := db.Query("SELECT * FROM todos ORDER BY id DESC")
 
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func GetTodoById(id uuid.UUID) (model.Todo, error) {
 		return model.Todo{}, err
 	}
 
-	selDB, err := db.Query(`select * from Todo where id = $1`, id)
+	selDB, err := db.Query(`select * from todos where id = $1`, id)
 	if err != nil {
 		return model.Todo{}, err
 	}
@@ -58,14 +58,16 @@ func buildTodo(selDB *sql.Rows, todo *model.Todo) error {
 	var id uuid.UUID
 	var title string
 	var complete bool
+	var createdAt sql.NullString
+	var updatedAt sql.NullString
+	var deletedAt sql.NullString
 
-	err := selDB.Scan(&id, &title, &complete)
+	err := selDB.Scan(&id, &title, &complete, &createdAt, &updatedAt, &deletedAt)
 	if err != nil {
 		return err
 	}
 
-	*todo = model.Todo{Id: id, Title: title, Complete: complete}
-
+	*todo = model.Todo{ID: id, Title: title, Complete: complete}
 	return nil
 }
 
@@ -75,7 +77,7 @@ func GetTodosCount() (int, error) {
 		return 0, err
 	}
 
-	rows, err := db.Query("SELECT count(*) FROM Todo")
+	rows, err := db.Query("SELECT count(*) FROM todos")
 	if err != nil {
 		return 0, err
 	}
@@ -95,7 +97,7 @@ func GetTodosCount() (int, error) {
 }
 
 func SaveTodo(todo model.Todo) (bool, error) {
-	isTodoExist, err := GetTodoById(todo.Id)
+	isTodoExist, err := GetTodoById(todo.ID)
 	if err != nil {
 		return false, err
 	}
@@ -122,12 +124,12 @@ func insertTodo(todo model.Todo) error {
 		return err
 	}
 
-	insForm, err := db.Prepare("INSERT INTO Todo (id, title, complete) VALUES ($1, $2, $3)")
+	insForm, err := db.Prepare("INSERT INTO todos (id, title, complete) VALUES ($1, $2, $3)")
 	if err != nil {
 		return err
 	}
 
-	_, err = insForm.Exec(todo.Id, todo.Title, todo.Complete)
+	_, err = insForm.Exec(todo.ID, todo.Title, todo.Complete)
 	if err != nil {
 		return err
 	}
@@ -141,12 +143,12 @@ func updateTodo(todo model.Todo) error {
 		return err
 	}
 
-	insForm, err := db.Prepare("UPDATE Todo SET title=$1, complete=$2 WHERE id=$3")
+	insForm, err := db.Prepare("UPDATE todos SET title=$1, complete=$2 WHERE id=$3")
 	if err != nil {
 		return err
 	}
 
-	_, err = insForm.Exec(todo.Title, todo.Complete, todo.Id)
+	_, err = insForm.Exec(todo.Title, todo.Complete, todo.ID)
 	if err != nil {
 		return err
 	}
@@ -160,7 +162,7 @@ func DeleteTodo(id uuid.UUID) error {
 		return err
 	}
 
-	delForm, err := db.Prepare("DELETE FROM Todo WHERE id=$1")
+	delForm, err := db.Prepare("DELETE FROM todos WHERE id=$1")
 	if err != nil {
 		return err
 	}
