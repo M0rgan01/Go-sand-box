@@ -8,7 +8,7 @@ import (
 // Todo Model
 type Todo struct {
 	gorm.Model
-	ID       uuid.UUID
-	Title    string
-	Complete bool
+	ID       uuid.UUID `json:"id"`
+	Title    string    `json:"title"`
+	Complete bool      `json:"complete"`
 }

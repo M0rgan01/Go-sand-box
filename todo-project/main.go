@@ -15,10 +15,10 @@ const port = 8080
 
 func main() {
 	configs.SetupConfiguration()
-	// init public key for security
-	security.FetchPublicKey()
 	// create keycloak fixtures
 	security.CreateKeycloakFixtures()
+	// init public key for security
+	security.FetchPublicKey()
 
 	gorm, err := database.GetGormInstance(configs.GetDataBaseDSN())
 	if err != nil {

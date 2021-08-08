@@ -10,7 +10,7 @@ import (
 )
 
 func SetupTodoRoutes(engine *gin.RouterGroup, todoService services.TodoService) {
-	r := engine.Group("/todo")
+	r := engine.Group("/todos")
 	{
 		r.GET("", func(context *gin.Context) {
 			TodoController{context, todoService}.GetTodos()

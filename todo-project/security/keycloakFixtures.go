@@ -26,6 +26,7 @@ func createDevBaseUser() {
 			credential := gocloak.CredentialRepresentation{
 				Temporary: gocloak.BoolP(false),
 				Type:      gocloak.StringP("password"),
+				// password -> admin
 				SecretData: gocloak.StringP("{" +
 					"\"value\": \"fa8akRKCigEtANBY+RM82A==\", " +
 					"\"salt\": \"ExrLjxuU9ag+mmAmYLI8KA==\"" +
