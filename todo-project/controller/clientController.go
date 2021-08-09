@@ -10,6 +10,17 @@ import (
 	"log"
 )
 
+func SetupWebsocketRoutes(engine *gin.RouterGroup) {
+	hub := model.NewHub()
+	go hub.Run()
+	r := engine.Group("/ws")
+	{
+		r.GET("/chat", func(context *gin.Context) {
+			ServeWs(hub, context)
+		})
+	}
+}
+
 // ServeWs serveWs handles websocket requests from the peer.
 func ServeWs(hub *model.Hub, c *gin.Context) {
 	conn, err := model.Upgrader.Upgrade(c.Writer, c.Request, nil)

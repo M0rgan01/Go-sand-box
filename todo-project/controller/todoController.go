@@ -5,58 +5,81 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/morgan/Go-sand-box/todo-project/model"
-	"github.com/morgan/Go-sand-box/todo-project/repository"
+	services "github.com/morgan/Go-sand-box/todo-project/service"
 	"net/http"
 )
 
-func GetTodos(c *gin.Context) {
-
-	todos, err := repository.GetTodoList()
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+func SetupTodoRoutes(engine *gin.RouterGroup, todoService services.TodoService) {
+	r := engine.Group("/todo")
+	{
+		r.GET("", func(context *gin.Context) {
+			TodoController{context, todoService}.GetTodos()
+		})
+		r.POST("", func(context *gin.Context) {
+			TodoController{context, todoService}.SaveTodo()
+		})
+		r.GET(":id", func(context *gin.Context) {
+			TodoController{context, todoService}.GetTodoById()
+		})
+		r.DELETE(":id", func(context *gin.Context) {
+			TodoController{context, todoService}.DeleteTodo()
+		})
 	}
-
-	c.JSON(http.StatusOK, todos)
 }
 
-func GetTodoById(c *gin.Context) {
-	todoId, err := getTodoId(c)
-
-	todo, err := repository.GetTodoById(todoId)
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
-
-	c.JSON(http.StatusOK, todo)
+type TodoController struct {
+	Context     *gin.Context
+	TodoService services.TodoService
 }
 
-func SaveTodo(c *gin.Context) {
+func (tc TodoController) GetTodos() {
+
+	todos, err := tc.TodoService.GetTodos()
+
+	if err != nil {
+		tc.Context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	tc.Context.JSON(http.StatusOK, todos)
+}
+
+func (tc TodoController) GetTodoById() {
+	todoId, err := getTodoId(tc.Context)
+
+	todo, err := tc.TodoService.GetTodoById(todoId)
+
+	if err != nil {
+		tc.Context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	tc.Context.JSON(http.StatusOK, todo)
+}
+
+func (tc TodoController) SaveTodo() {
 	var todo model.Todo
-	_ = json.NewDecoder(c.Request.Body).Decode(&todo)
+	_ = json.NewDecoder(tc.Context.Request.Body).Decode(&todo)
 
-	isCreated, err := repository.SaveTodo(todo)
+	isCreated, err := tc.TodoService.SaveTodo(todo)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		tc.Context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 	if isCreated {
-		c.Status(http.StatusCreated)
+		tc.Context.Status(http.StatusCreated)
 	} else {
-		c.Status(http.StatusOK)
+		tc.Context.Status(http.StatusOK)
 	}
 }
 
-func DeleteTodo(c *gin.Context) {
-	todoId, err := getTodoId(c)
+func (tc TodoController) DeleteTodo() {
+	todoId, err := getTodoId(tc.Context)
 
-	err = repository.DeleteTodo(todoId)
+	err = tc.TodoService.DeleteTodo(todoId)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		tc.Context.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
-	c.Status(http.StatusOK)
+	tc.Context.Status(http.StatusOK)
 }
 
 func getTodoId(c *gin.Context) (uuid.UUID, error) {

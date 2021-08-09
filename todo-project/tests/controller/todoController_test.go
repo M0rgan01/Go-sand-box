@@ -1,8 +1,9 @@
 package controller
 
 import (
+	"github.com/morgan/Go-sand-box/todo-project/controller"
 	"github.com/morgan/Go-sand-box/todo-project/model"
-	"github.com/morgan/Go-sand-box/todo-project/routes"
+	services "github.com/morgan/Go-sand-box/todo-project/service"
 	"github.com/morgan/Go-sand-box/todo-project/tests"
 	"github.com/morgan/Go-sand-box/todo-project/utils"
 	"github.com/stretchr/testify/assert"
@@ -31,10 +32,10 @@ func TestCatalogController(t *testing.T) {
 		})
 }
 
-func GetTodoListTest(t *testing.T) {
+func GetTodoListTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := routes.SetupRoutes()
+	router := controller.SetupRoutes(services)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/todoAPI/todo", nil)
 	var todos []model.Todo
@@ -48,10 +49,10 @@ func GetTodoListTest(t *testing.T) {
 	assert.JSONEq(t, tests.StructToString(todos), w.Body.String())
 }
 
-func GetTodoByIdTest(t *testing.T) {
+func GetTodoByIdTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := routes.SetupRoutes()
+	router := controller.SetupRoutes(services)
 	w := httptest.NewRecorder()
 	var todo model.Todo
 	tests.GetDbConnection().First(&todo)
@@ -66,10 +67,10 @@ func GetTodoByIdTest(t *testing.T) {
 	assert.JSONEq(t, tests.StructToString(todo), w.Body.String())
 }
 
-func AddTodoTest(t *testing.T) {
+func AddTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := routes.SetupRoutes()
+	router := controller.SetupRoutes(services)
 	w := httptest.NewRecorder()
 
 	todoToAdd := model.Todo{
@@ -96,10 +97,10 @@ func AddTodoTest(t *testing.T) {
 	assert.Equal(t, todo, todoToAdd)
 }
 
-func UpdateTodoTest(t *testing.T) {
+func UpdateTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := routes.SetupRoutes()
+	router := controller.SetupRoutes(services)
 	w := httptest.NewRecorder()
 
 	var todoToUpdate model.Todo
@@ -125,10 +126,10 @@ func UpdateTodoTest(t *testing.T) {
 	assert.Equal(t, todoUpdated, todoToUpdate)
 }
 
-func DeleteTodoTest(t *testing.T) {
+func DeleteTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := routes.SetupRoutes()
+	router := controller.SetupRoutes(services)
 	w := httptest.NewRecorder()
 
 	var todoToDelete model.Todo

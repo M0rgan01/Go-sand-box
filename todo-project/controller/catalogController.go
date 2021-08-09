@@ -2,11 +2,15 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/morgan/Go-sand-box/todo-project/repository"
-	"net/http"
+	services "github.com/morgan/Go-sand-box/todo-project/service"
 )
 
-func GetCatalogs(c *gin.Context) {
+type CatalogController struct {
+	Context        *gin.Context
+	CatalogService services.CatalogService
+}
+
+/*func GetCatalogs(c *gin.Context) {
 
 	todos, err := repository.GetTodoList()
 
@@ -15,4 +19,4 @@ func GetCatalogs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, todos)
-}
+}*/

@@ -3,12 +3,16 @@ package repository
 import (
 	"database/sql"
 	"github.com/google/uuid"
-	"github.com/morgan/Go-sand-box/todo-project/database"
 	"github.com/morgan/Go-sand-box/todo-project/model"
+	"gorm.io/gorm"
 )
 
-func GetTodoList() ([]model.Todo, error) {
-	db, err := database.GetGormDBConnection()
+type TodoRepository struct {
+	db *gorm.DB
+}
+
+func (tr TodoRepository) GetTodoList() ([]model.Todo, error) {
+	db, err := tr.db.DB()
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +36,8 @@ func GetTodoList() ([]model.Todo, error) {
 	return todos, nil
 }
 
-func GetTodoById(id uuid.UUID) (model.Todo, error) {
-	db, err := database.GetGormDBConnection()
+func (tr TodoRepository) GetTodoById(id uuid.UUID) (model.Todo, error) {
+	db, err := tr.db.DB()
 	if err != nil {
 		return model.Todo{}, err
 	}
@@ -71,8 +75,8 @@ func buildTodo(selDB *sql.Rows, todo *model.Todo) error {
 	return nil
 }
 
-func GetTodosCount() (int, error) {
-	db, err := database.GetGormDBConnection()
+func (tr TodoRepository) GetTodosCount() (int, error) {
+	db, err := tr.db.DB()
 	if err != nil {
 		return 0, err
 	}
@@ -96,20 +100,20 @@ func GetTodosCount() (int, error) {
 	return count, nil
 }
 
-func SaveTodo(todo model.Todo) (bool, error) {
-	isTodoExist, err := GetTodoById(todo.ID)
+func (tr TodoRepository) SaveTodo(todo model.Todo) (bool, error) {
+	isTodoExist, err := tr.GetTodoById(todo.ID)
 	if err != nil {
 		return false, err
 	}
 
 	if isTodoExist != (model.Todo{}) {
-		err := updateTodo(todo)
+		err := tr.updateTodo(todo)
 		if err != nil {
 			return false, err
 		}
 		return false, nil
 	} else {
-		err := insertTodo(todo)
+		err := tr.insertTodo(todo)
 		if err != nil {
 			return false, err
 		}
@@ -117,9 +121,9 @@ func SaveTodo(todo model.Todo) (bool, error) {
 	}
 }
 
-func insertTodo(todo model.Todo) error {
+func (tr TodoRepository) insertTodo(todo model.Todo) error {
 
-	db, err := database.GetGormDBConnection()
+	db, err := tr.db.DB()
 	if err != nil {
 		return err
 	}
@@ -137,8 +141,8 @@ func insertTodo(todo model.Todo) error {
 	return nil
 }
 
-func updateTodo(todo model.Todo) error {
-	db, err := database.GetGormDBConnection()
+func (tr TodoRepository) updateTodo(todo model.Todo) error {
+	db, err := tr.db.DB()
 	if err != nil {
 		return err
 	}
@@ -156,8 +160,8 @@ func updateTodo(todo model.Todo) error {
 	return nil
 }
 
-func DeleteTodo(id uuid.UUID) error {
-	db, err := database.GetGormDBConnection()
+func (tr TodoRepository) DeleteTodo(id uuid.UUID) error {
+	db, err := tr.db.DB()
 	if err != nil {
 		return err
 	}

@@ -2,9 +2,11 @@ package main
 
 import (
 	"github.com/morgan/Go-sand-box/todo-project/configuration"
+	"github.com/morgan/Go-sand-box/todo-project/controller"
 	"github.com/morgan/Go-sand-box/todo-project/database"
-	"github.com/morgan/Go-sand-box/todo-project/routes"
+	"github.com/morgan/Go-sand-box/todo-project/repository"
 	"github.com/morgan/Go-sand-box/todo-project/security"
+	services "github.com/morgan/Go-sand-box/todo-project/service"
 	"log"
 	"strconv"
 )
@@ -33,7 +35,10 @@ func main() {
 		log.Fatalf("Failed to migrate database : %s", err.Error())
 	}
 
-	r := routes.SetupRoutes()
+	instantiatedRepositories := repository.InitRepositoriesInstances(gorm)
+	instantiatedServices := services.InitDAOSInstances(instantiatedRepositories)
+
+	r := controller.SetupRoutes(instantiatedServices)
 
 	log.Printf("todo-project running at 'http://localhost:%d'", port)
 	err = r.Run(":" + strconv.Itoa(port))

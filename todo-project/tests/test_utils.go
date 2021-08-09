@@ -7,6 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/morgan/Go-sand-box/todo-project/configuration"
 	"github.com/morgan/Go-sand-box/todo-project/database"
+	"github.com/morgan/Go-sand-box/todo-project/repository"
+	services "github.com/morgan/Go-sand-box/todo-project/service"
 	"gorm.io/gorm"
 	"log"
 	"testing"
@@ -14,7 +16,7 @@ import (
 
 type Test struct {
 	Title    string
-	TestFunc func(t *testing.T)
+	TestFunc func(t *testing.T, services services.ServiceInstances)
 }
 
 var testGormInstance *gorm.DB
@@ -91,16 +93,16 @@ func UuidFromString(s string) uuid.UUID {
 
 func ExecuteIntegrationsTests(testList []Test, tt *testing.T, beforeEach func(), afterEach func()) {
 
-	//db := GetDbConnection()
-	/*instantiatedDaos := daos.InitDAOSInstances(db)
-	instantiatedServices := services.InitDAOSInstances(instantiatedDaos)*/
+	db := GetDbConnection()
+	instantiatedRepositories := repository.InitRepositoriesInstances(db)
+	instantiatedServices := services.InitDAOSInstances(instantiatedRepositories)
 
 	for _, test := range testList {
 		tt.Run(test.Title, func(t *testing.T) {
 			if beforeEach != nil {
 				beforeEach()
 			}
-			test.TestFunc(t)
+			test.TestFunc(t, instantiatedServices)
 			t.Cleanup(func() {
 				if afterEach != nil {
 					afterEach()

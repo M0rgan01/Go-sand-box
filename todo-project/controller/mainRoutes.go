@@ -1,11 +1,12 @@
-package routes
+package controller
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/morgan/Go-sand-box/todo-project/security"
+	services "github.com/morgan/Go-sand-box/todo-project/service"
 )
 
-func SetupRoutes() *gin.Engine {
+func SetupRoutes(services services.ServiceInstances) *gin.Engine {
 	// Creates a router without any middleware by default
 	r := gin.New()
 
@@ -25,7 +26,7 @@ func SetupRoutes() *gin.Engine {
 
 	apiGroup := r.Group("/todoAPI")
 	wsGroup := r.Group("/wsAPI")
-	SetupTodoRoutes(apiGroup)
+	SetupTodoRoutes(apiGroup, services.TodoService)
 	SetupWebsocketRoutes(wsGroup)
 
 	return r
