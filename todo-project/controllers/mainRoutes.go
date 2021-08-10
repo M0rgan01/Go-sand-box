@@ -1,9 +1,9 @@
-package controller
+package controllers
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/morgan/Go-sand-box/todo-project/security"
-	services "github.com/morgan/Go-sand-box/todo-project/service"
+	services "github.com/morgan/Go-sand-box/todo-project/services"
 )
 
 func SetupRoutes(services services.ServiceInstances) *gin.Engine {

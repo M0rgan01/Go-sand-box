@@ -2,15 +2,15 @@ package services
 
 import (
 	"github.com/google/uuid"
-	"github.com/morgan/Go-sand-box/todo-project/model"
-	"github.com/morgan/Go-sand-box/todo-project/repository"
+	"github.com/morgan/Go-sand-box/todo-project/models"
+	"github.com/morgan/Go-sand-box/todo-project/repositories"
 )
 
 type TodoService struct {
-	TodoRepository repository.TodoRepository
+	TodoRepository repositories.TodoRepository
 }
 
-func (ts TodoService) GetTodos() ([]model.Todo, error) {
+func (ts TodoService) GetTodos() ([]models.Todo, error) {
 	todos, err := ts.TodoRepository.GetTodoList()
 	if err != nil {
 		return nil, err
@@ -18,15 +18,15 @@ func (ts TodoService) GetTodos() ([]model.Todo, error) {
 	return todos, nil
 }
 
-func (ts TodoService) GetTodoById(id uuid.UUID) (model.Todo, error) {
+func (ts TodoService) GetTodoById(id uuid.UUID) (models.Todo, error) {
 	todo, err := ts.TodoRepository.GetTodoById(id)
 	if err != nil {
-		return model.Todo{}, err
+		return models.Todo{}, err
 	}
 	return todo, nil
 }
 
-func (ts TodoService) SaveTodo(todo model.Todo) (bool, error) {
+func (ts TodoService) SaveTodo(todo models.Todo) (bool, error) {
 	isCreated, err := ts.TodoRepository.SaveTodo(todo)
 	if err != nil {
 		return false, err

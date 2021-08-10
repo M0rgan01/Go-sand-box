@@ -5,8 +5,8 @@ import (
 	"github.com/Nerzal/gocloak/v8"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/morgan/Go-sand-box/todo-project/configuration"
-	"log"
+	"github.com/morgan/Go-sand-box/todo-project/configs"
+	"github.com/morgan/Go-sand-box/todo-project/logger"
 	"net/http"
 	"strings"
 	"time"
@@ -21,25 +21,25 @@ var publicKey string
 var retryFetchPublicKey = 1
 
 func FetchPublicKey() {
-	log.Println("Fetching public key...")
-	client := gocloak.NewClient(configuration.BaseKeycloakInfo.BaseURL)
+	logger.Info("Fetching public key...")
+	client := gocloak.NewClient(configs.BaseKeycloakInfo.BaseURL)
 	ctx := context.Background()
-	issuerInfo, err := client.GetIssuer(ctx, configuration.BaseKeycloakInfo.Realm)
+	issuerInfo, err := client.GetIssuer(ctx, configs.BaseKeycloakInfo.Realm)
 
 	if err != nil {
 
-		log.Printf("Error when fetching public key : %s", err)
+		logger.Infof("Error when fetching public key : %s", err)
 		if retryFetchPublicKey < 4 {
-			log.Printf("--- Retry in %d sec ---", retryFetchPublicKey)
+			logger.Infof("--- Retry in %d sec ---", retryFetchPublicKey)
 			time.Sleep(time.Duration(retryFetchPublicKey) * time.Second)
 			retryFetchPublicKey++
 			FetchPublicKey()
 		} else {
-			log.Fatal("Please check availability of keycloak service")
+			logger.Fatal("Please check availability of keycloak service")
 		}
 	} else {
 		publicKey = *issuerInfo.PublicKey
-		log.Println("Fetching public key done !")
+		logger.Info("Fetching public key done !")
 	}
 }
 
@@ -90,7 +90,7 @@ func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
 	token, err := jwt.Parse(tokenStr, validateToken)
 
 	if err != nil {
-		log.Println("Error when parsing token : ", err)
+		logger.Debug("Error when parsing token : ", err)
 		return nil, false
 	}
 
@@ -99,7 +99,7 @@ func extractClaims(tokenStr string) (jwt.MapClaims, bool) {
 	if ok && token.Valid {
 		return claims, true
 	} else {
-		log.Println("Invalid JWT Token")
+		logger.Debug("Invalid JWT Token")
 		return nil, false
 	}
 }

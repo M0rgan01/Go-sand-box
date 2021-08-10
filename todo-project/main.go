@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/morgan/Go-sand-box/todo-project/configuration"
-	"github.com/morgan/Go-sand-box/todo-project/controller"
+	"github.com/morgan/Go-sand-box/todo-project/configs"
+	"github.com/morgan/Go-sand-box/todo-project/controllers"
 	"github.com/morgan/Go-sand-box/todo-project/database"
-	"github.com/morgan/Go-sand-box/todo-project/repository"
+	"github.com/morgan/Go-sand-box/todo-project/repositories"
 	"github.com/morgan/Go-sand-box/todo-project/security"
-	services "github.com/morgan/Go-sand-box/todo-project/service"
+	services "github.com/morgan/Go-sand-box/todo-project/services"
 	"log"
 	"strconv"
 )
@@ -14,13 +14,13 @@ import (
 const port = 8080
 
 func main() {
-	configuration.SetupConfiguration()
+	configs.SetupConfiguration()
 	// init public key for security
 	security.FetchPublicKey()
 	// create keycloak fixtures
 	security.CreateKeycloakFixtures()
 
-	gorm, err := database.GetGormInstance(configuration.GetDataBaseDSN())
+	gorm, err := database.GetGormInstance(configs.GetDataBaseDSN())
 	if err != nil {
 		log.Fatalf("Failed to init gorm connection : %s", err.Error())
 	}
@@ -30,15 +30,15 @@ func main() {
 		log.Fatalf("Failed to get gorm DB instance : %s", err.Error())
 	}
 
-	err = database.Migrate(dbInstance, configuration.MigrationsDirectory)
+	err = database.Migrate(dbInstance, configs.MigrationsDirectory)
 	if err != nil {
 		log.Fatalf("Failed to migrate database : %s", err.Error())
 	}
 
-	instantiatedRepositories := repository.InitRepositoriesInstances(gorm)
+	instantiatedRepositories := repositories.InitRepositoriesInstances(gorm)
 	instantiatedServices := services.InitDAOSInstances(instantiatedRepositories)
 
-	r := controller.SetupRoutes(instantiatedServices)
+	r := controllers.SetupRoutes(instantiatedServices)
 
 	log.Printf("todo-project running at 'http://localhost:%d'", port)
 	err = r.Run(":" + strconv.Itoa(port))

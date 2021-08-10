@@ -1,4 +1,4 @@
-package configuration
+package configs
 
 var KeycloakDevInfo = KeycloakInfo{
 	BaseURL:        "http://localhost",
@@ -49,11 +49,11 @@ var BaseKeycloakAdminInfo KeycloakAdminInfo
 var BaseKeycloakSMTPInfo KeycloakSMTPInfo
 
 func setKeycloakInfosByEnv() {
-	switch EnvKey {
-	case ProdEnv:
+	switch GetEnvironnement() {
+	case ProdEnvironnement:
 		BaseKeycloakInfo = KeycloakProdInfo
 		BaseKeycloakAdminInfo = keycloakProdAdminInfo
-	case DevEnv:
+	case DevEnvironnement:
 		BaseKeycloakSMTPInfo = keycloakDevSMTPServer
 		BaseKeycloakInfo = KeycloakDevInfo
 		BaseKeycloakAdminInfo = keycloakDevAdminInfo

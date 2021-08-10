@@ -8,10 +8,10 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
-	"github.com/morgan/Go-sand-box/todo-project/configuration"
+	"github.com/morgan/Go-sand-box/todo-project/configs"
+	"github.com/morgan/Go-sand-box/todo-project/logger"
 	"io/fs"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -78,13 +78,13 @@ func GetDBMigrationInstance(db *sql.DB, dir string) (database.Driver, *migrate.M
 }
 
 func proceedMigrations(m *migrate.Migrate) error {
-	log.Println("Migrations detected, proceed database update...")
+	logger.Info("Migrations detected, proceed database update...")
 	err := m.Up()
 
 	if err != nil {
 		return errors.New("failed to migrate database : " + err.Error())
 	}
-	log.Println("Migrations succeed")
+	logger.Info("Migrations succeed")
 	return nil
 }
 
@@ -98,7 +98,7 @@ func getLastMigrationFileVersion(dir string) (string, bool, error) {
 
 	for _, file := range files {
 		fileExtension := filepath.Ext(file.Name())
-		if fileExtension == configuration.MigrationFileExtension {
+		if fileExtension == configs.MigrationFileExtension {
 			migrationFile = append(migrationFile, file)
 		}
 	}

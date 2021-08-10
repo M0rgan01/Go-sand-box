@@ -1,9 +1,9 @@
-package repository
+package repositories
 
 import (
 	"database/sql"
 	"github.com/google/uuid"
-	"github.com/morgan/Go-sand-box/todo-project/model"
+	"github.com/morgan/Go-sand-box/todo-project/models"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +11,7 @@ type TodoRepository struct {
 	db *gorm.DB
 }
 
-func (tr TodoRepository) GetTodoList() ([]model.Todo, error) {
+func (tr TodoRepository) GetTodoList() ([]models.Todo, error) {
 	db, err := tr.db.DB()
 	if err != nil {
 		return nil, err
@@ -23,8 +23,8 @@ func (tr TodoRepository) GetTodoList() ([]model.Todo, error) {
 		return nil, err
 	}
 
-	todo := model.Todo{}
-	var todos []model.Todo
+	todo := models.Todo{}
+	var todos []models.Todo
 	for selDB.Next() {
 		err := buildTodo(selDB, &todo)
 		if err != nil {
@@ -36,29 +36,29 @@ func (tr TodoRepository) GetTodoList() ([]model.Todo, error) {
 	return todos, nil
 }
 
-func (tr TodoRepository) GetTodoById(id uuid.UUID) (model.Todo, error) {
+func (tr TodoRepository) GetTodoById(id uuid.UUID) (models.Todo, error) {
 	db, err := tr.db.DB()
 	if err != nil {
-		return model.Todo{}, err
+		return models.Todo{}, err
 	}
 
 	selDB, err := db.Query(`select * from todos where id = $1`, id)
 	if err != nil {
-		return model.Todo{}, err
+		return models.Todo{}, err
 	}
 
-	todo := model.Todo{}
+	todo := models.Todo{}
 	for selDB.Next() {
 		err := buildTodo(selDB, &todo)
 		if err != nil {
-			return model.Todo{}, err
+			return models.Todo{}, err
 		}
 	}
 
 	return todo, nil
 }
 
-func buildTodo(selDB *sql.Rows, todo *model.Todo) error {
+func buildTodo(selDB *sql.Rows, todo *models.Todo) error {
 	var id uuid.UUID
 	var title string
 	var complete bool
@@ -71,7 +71,7 @@ func buildTodo(selDB *sql.Rows, todo *model.Todo) error {
 		return err
 	}
 
-	*todo = model.Todo{ID: id, Title: title, Complete: complete}
+	*todo = models.Todo{ID: id, Title: title, Complete: complete}
 	return nil
 }
 
@@ -100,13 +100,13 @@ func (tr TodoRepository) GetTodosCount() (int, error) {
 	return count, nil
 }
 
-func (tr TodoRepository) SaveTodo(todo model.Todo) (bool, error) {
+func (tr TodoRepository) SaveTodo(todo models.Todo) (bool, error) {
 	isTodoExist, err := tr.GetTodoById(todo.ID)
 	if err != nil {
 		return false, err
 	}
 
-	if isTodoExist != (model.Todo{}) {
+	if isTodoExist != (models.Todo{}) {
 		err := tr.updateTodo(todo)
 		if err != nil {
 			return false, err
@@ -121,7 +121,7 @@ func (tr TodoRepository) SaveTodo(todo model.Todo) (bool, error) {
 	}
 }
 
-func (tr TodoRepository) insertTodo(todo model.Todo) error {
+func (tr TodoRepository) insertTodo(todo models.Todo) error {
 
 	db, err := tr.db.DB()
 	if err != nil {
@@ -141,7 +141,7 @@ func (tr TodoRepository) insertTodo(todo model.Todo) error {
 	return nil
 }
 
-func (tr TodoRepository) updateTodo(todo model.Todo) error {
+func (tr TodoRepository) updateTodo(todo models.Todo) error {
 	db, err := tr.db.DB()
 	if err != nil {
 		return err

@@ -1,4 +1,4 @@
-package configuration
+package configs
 
 type KeycloakAdminInfo struct {
 	Username    string

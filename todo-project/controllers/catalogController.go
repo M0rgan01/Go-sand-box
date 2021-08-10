@@ -1,8 +1,8 @@
-package controller
+package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	services "github.com/morgan/Go-sand-box/todo-project/service"
+	services "github.com/morgan/Go-sand-box/todo-project/services"
 )
 
 type CatalogController struct {

@@ -1,11 +1,11 @@
-package controller
+package controllers
 
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/morgan/Go-sand-box/todo-project/model"
-	services "github.com/morgan/Go-sand-box/todo-project/service"
+	"github.com/morgan/Go-sand-box/todo-project/models"
+	services "github.com/morgan/Go-sand-box/todo-project/services"
 	"net/http"
 )
 
@@ -56,7 +56,7 @@ func (tc TodoController) GetTodoById() {
 }
 
 func (tc TodoController) SaveTodo() {
-	var todo model.Todo
+	var todo models.Todo
 	_ = json.NewDecoder(tc.Context.Request.Body).Decode(&todo)
 
 	isCreated, err := tc.TodoService.SaveTodo(todo)

@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 // Copyright 2013 The Gorilla WebSocket Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -6,12 +6,12 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/morgan/Go-sand-box/todo-project/model"
-	"log"
+	"github.com/morgan/Go-sand-box/todo-project/logger"
+	"github.com/morgan/Go-sand-box/todo-project/models"
 )
 
 func SetupWebsocketRoutes(engine *gin.RouterGroup) {
-	hub := model.NewHub()
+	hub := models.NewHub()
 	go hub.Run()
 	r := engine.Group("/ws")
 	{
@@ -22,13 +22,13 @@ func SetupWebsocketRoutes(engine *gin.RouterGroup) {
 }
 
 // ServeWs serveWs handles websocket requests from the peer.
-func ServeWs(hub *model.Hub, c *gin.Context) {
-	conn, err := model.Upgrader.Upgrade(c.Writer, c.Request, nil)
+func ServeWs(hub *models.Hub, c *gin.Context) {
+	conn, err := models.Upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Println(err)
+		logger.Error(err)
 		return
 	}
-	client := &model.Client{Hub: hub, Conn: conn, Send: make(chan []byte, 256)}
+	client := &models.Client{Hub: hub, Conn: conn, Send: make(chan []byte, 256)}
 	client.Hub.Register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in

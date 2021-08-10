@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/morgan/Go-sand-box/todo-project/repository"
+	"github.com/morgan/Go-sand-box/todo-project/repositories"
 )
 
 type ServiceInstances struct {
@@ -9,7 +9,7 @@ type ServiceInstances struct {
 	TodoService    TodoService
 }
 
-func InitDAOSInstances(instances repository.RepositoriesInstances) ServiceInstances {
+func InitDAOSInstances(instances repositories.RepositoriesInstances) ServiceInstances {
 	return ServiceInstances{
 		CatalogService: CatalogService{instances.CatalogRepository},
 		TodoService:    TodoService{instances.TodoRepository},

@@ -1,9 +1,9 @@
-package controller
+package controllers
 
 import (
-	"github.com/morgan/Go-sand-box/todo-project/controller"
-	"github.com/morgan/Go-sand-box/todo-project/model"
-	services "github.com/morgan/Go-sand-box/todo-project/service"
+	"github.com/morgan/Go-sand-box/todo-project/controllers"
+	"github.com/morgan/Go-sand-box/todo-project/models"
+	services "github.com/morgan/Go-sand-box/todo-project/services"
 	"github.com/morgan/Go-sand-box/todo-project/tests"
 	"github.com/morgan/Go-sand-box/todo-project/utils"
 	"github.com/stretchr/testify/assert"
@@ -35,10 +35,10 @@ func TestCatalogController(t *testing.T) {
 func GetTodoListTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := controller.SetupRoutes(services)
+	router := controllers.SetupRoutes(services)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/todoAPI/todo", nil)
-	var todos []model.Todo
+	var todos []models.Todo
 	tests.GetDbConnection().Find(&todos)
 
 	// when
@@ -52,9 +52,9 @@ func GetTodoListTest(t *testing.T, services services.ServiceInstances) {
 func GetTodoByIdTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := controller.SetupRoutes(services)
+	router := controllers.SetupRoutes(services)
 	w := httptest.NewRecorder()
-	var todo model.Todo
+	var todo models.Todo
 	tests.GetDbConnection().First(&todo)
 
 	req, _ := http.NewRequest("GET", "/todoAPI/todo/"+todo.ID.String(), nil)
@@ -70,10 +70,10 @@ func GetTodoByIdTest(t *testing.T, services services.ServiceInstances) {
 func AddTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := controller.SetupRoutes(services)
+	router := controllers.SetupRoutes(services)
 	w := httptest.NewRecorder()
 
-	todoToAdd := model.Todo{
+	todoToAdd := models.Todo{
 		ID:       utils.CreateUuid(),
 		Title:    "test",
 		Complete: true,
@@ -89,10 +89,10 @@ func AddTodoTest(t *testing.T, services services.ServiceInstances) {
 	assert.Equal(t, 201, w.Code)
 
 	var count int64
-	tests.GetDbConnection().Model(&model.Todo{}).Count(&count)
+	tests.GetDbConnection().Model(&models.Todo{}).Count(&count)
 	assert.Equal(t, int64(3), count)
 
-	var todo model.Todo
+	var todo models.Todo
 	tests.GetDbConnection().Find(&todo, todoToAdd.ID)
 	assert.Equal(t, todo, todoToAdd)
 }
@@ -100,10 +100,10 @@ func AddTodoTest(t *testing.T, services services.ServiceInstances) {
 func UpdateTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := controller.SetupRoutes(services)
+	router := controllers.SetupRoutes(services)
 	w := httptest.NewRecorder()
 
-	var todoToUpdate model.Todo
+	var todoToUpdate models.Todo
 	tests.GetDbConnection().First(&todoToUpdate)
 	todoToUpdate.Title = "TestUpdate"
 	todoToUpdate.Complete = true
@@ -118,10 +118,10 @@ func UpdateTodoTest(t *testing.T, services services.ServiceInstances) {
 	assert.Equal(t, 200, w.Code)
 
 	var count int64
-	tests.GetDbConnection().Model(&model.Todo{}).Count(&count)
+	tests.GetDbConnection().Model(&models.Todo{}).Count(&count)
 	assert.Equal(t, int64(2), count)
 
-	var todoUpdated model.Todo
+	var todoUpdated models.Todo
 	tests.GetDbConnection().First(&todoUpdated)
 	assert.Equal(t, todoUpdated, todoToUpdate)
 }
@@ -129,10 +129,10 @@ func UpdateTodoTest(t *testing.T, services services.ServiceInstances) {
 func DeleteTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// given
-	router := controller.SetupRoutes(services)
+	router := controllers.SetupRoutes(services)
 	w := httptest.NewRecorder()
 
-	var todoToDelete model.Todo
+	var todoToDelete models.Todo
 	tests.GetDbConnection().First(&todoToDelete)
 	id := todoToDelete.ID.String()
 
@@ -143,7 +143,7 @@ func DeleteTodoTest(t *testing.T, services services.ServiceInstances) {
 
 	// then
 	var count int64
-	tests.GetDbConnection().Model(&model.Todo{}).Count(&count)
+	tests.GetDbConnection().Model(&models.Todo{}).Count(&count)
 	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, int64(1), count)
 }

@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/morgan/Go-sand-box/todo-project/configuration"
+	"github.com/morgan/Go-sand-box/todo-project/configs"
 	"github.com/morgan/Go-sand-box/todo-project/database"
-	"github.com/morgan/Go-sand-box/todo-project/repository"
-	services "github.com/morgan/Go-sand-box/todo-project/service"
+	"github.com/morgan/Go-sand-box/todo-project/repositories"
+	services "github.com/morgan/Go-sand-box/todo-project/services"
 	"gorm.io/gorm"
 	"log"
 	"testing"
@@ -41,10 +41,10 @@ func GetDbConnection() *gorm.DB {
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s %s",
-		configuration.DBHost,
-		configuration.DBUser,
-		configuration.DBPassword,
-		configuration.DBName,
+		configs.DBHost,
+		configs.DBUser,
+		configs.DBPassword,
+		configs.DBName,
 		"5433",
 		"sslmode=disable",
 	)
@@ -94,7 +94,7 @@ func UuidFromString(s string) uuid.UUID {
 func ExecuteIntegrationsTests(testList []Test, tt *testing.T, beforeEach func(), afterEach func()) {
 
 	db := GetDbConnection()
-	instantiatedRepositories := repository.InitRepositoriesInstances(db)
+	instantiatedRepositories := repositories.InitRepositoriesInstances(db)
 	instantiatedServices := services.InitDAOSInstances(instantiatedRepositories)
 
 	for _, test := range testList {

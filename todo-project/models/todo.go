@@ -1,13 +1,14 @@
-package model
+package models
 
 import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-type Catalog struct {
+// Todo Model
+type Todo struct {
 	gorm.Model
 	ID       uuid.UUID
-	Name     string
-	Products []Product
+	Title    string
+	Complete bool
 }
