@@ -1,7 +1,7 @@
 package configs
 
 var KeycloakDevInfo = KeycloakInfo{
-	BaseURL:        "http://localhost",
+	BaseURL:        "http://localhost:8080",
 	ClientID:       "TodoApi",
 	Realm:          "TodoRealm",
 	BaseTheme:      "base",
@@ -18,7 +18,7 @@ var keycloakDevAdminInfo = KeycloakAdminInfo{
 }
 
 var KeycloakProdInfo = KeycloakInfo{
-	BaseURL:        "http://localhost",
+	BaseURL:        "http://localhost:8080",
 	ClientID:       "TodoApi",
 	Realm:          "TodoRealm",
 	BaseTheme:      "base",
